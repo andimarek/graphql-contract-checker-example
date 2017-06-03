@@ -38,4 +38,4 @@ The current query is available as [classpath resource](src/main/resources/reques
 The [gradle task](build.gradle#L45) to check the contract reads the old Introspection JSON file, 
 reads the used query and queries the current Schema from the server.
 
-With these three inputs the `graphql-contract-checker` is called and it asserted that the contract is still valid. 
+With these three inputs the `graphql-contract-checker` is called and it is asserted that the contract is still valid. 
