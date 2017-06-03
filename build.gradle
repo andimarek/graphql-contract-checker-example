@@ -1,0 +1,68 @@
+import graphql.contract.ContractChecker
+import okhttp3.*;
+import graphql.introspection.IntrospectionQuery;
+import groovy.json.JsonSlurper;
+import groovy.json.JsonOutput;
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url "http://dl.bintray.com/andimarek/graphql-contract-checker" }
+        maven { url "http://dl.bintray.com/andimarek/graphql-java" }
+    }
+
+    dependencies {
+        classpath 'com.graphql-java:contract-checker:2017-06-03T09-29-31'
+        classpath 'com.squareup.okhttp3:okhttp:3.8.0'
+    }
+
+}
+
+apply plugin: 'java'
+
+group 'com.example'
+version '1.0-SNAPSHOT'
+sourceCompatibility = 1.8
+
+
+
+String getCurrentIntrospection() {
+    MediaType JSON = MediaType.parse("application/json; charset=utf-8")
+
+    OkHttpClient client = new OkHttpClient()
+    String bodyString = "{\"query\":\"" + IntrospectionQuery.INTROSPECTION_QUERY.replace("\n","") + "\"}";
+    RequestBody body = RequestBody.create(JSON, bodyString)
+    Request request = new Request.Builder()
+            .url("https://vkpwr4q53.lp.gql.zone/graphql")
+            .post(body)
+            .build()
+    Response response = client.newCall(request).execute()
+    def currentIntro = JsonOutput.toJson(new JsonSlurper().parseText(response.body().string()).data)
+    currentIntro
+
+}
+
+task checkContract {
+
+    doLast {
+        def checker = new ContractChecker()
+        String query = new File('src/main/resources/request.graphql').text
+        String oldIntrospection = new File('src/test/resources/introspection-old.json').text
+        String currentIntrospection = getCurrentIntrospection()
+
+        def result = checker.checkContract(query, oldIntrospection, currentIntrospection)
+        assert  result.result, "Contract broken: $result"
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'com.squareup.okhttp3:okhttp:3.8.0'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'com.google.guava:guava:22.0'
+    compile 'com.graphql-java:graphql-java:3.0.0'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
