@@ -1,4 +1,4 @@
-example project for https://github.com/andimarek/graphql-contract-checker
+### example project for [graphql-contract-checker](https://github.com/andimarek/graphql-contract-checker)
  
 It checks via
 
@@ -11,7 +11,7 @@ if the old contract is still valid. In this example it fails on purpose, because
 ```graphql
 type Query {
     hello: String
-  }
+}
 ```
 
 and the new one is 
@@ -20,7 +20,7 @@ and the new one is
 ```graphql
 type Query {
     hello: Int
-  }
+}
 ```
 
 The type of `hello` was changed from `String` to `Int` which is a incompatible change.
