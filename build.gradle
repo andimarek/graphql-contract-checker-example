@@ -1,8 +1,8 @@
 import graphql.contract.ContractChecker
-import okhttp3.*;
-import graphql.introspection.IntrospectionQuery;
-import groovy.json.JsonSlurper;
-import groovy.json.JsonOutput;
+import okhttp3.*
+import graphql.introspection.IntrospectionQuery
+import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 buildscript {
     repositories {
@@ -30,7 +30,7 @@ String getCurrentIntrospection() {
     MediaType JSON = MediaType.parse("application/json; charset=utf-8")
 
     OkHttpClient client = new OkHttpClient()
-    String bodyString = "{\"query\":\"" + IntrospectionQuery.INTROSPECTION_QUERY.replace("\n","") + "\"}";
+    String bodyString = "{\"query\":\"" + IntrospectionQuery.INTROSPECTION_QUERY.replace("\n","") + "\"}"
     RequestBody body = RequestBody.create(JSON, bodyString)
     Request request = new Request.Builder()
             .url("https://vkpwr4q53.lp.gql.zone/graphql")
@@ -43,13 +43,11 @@ String getCurrentIntrospection() {
 }
 
 task checkContract {
-
+    def checker = new ContractChecker()
+    String query = file('src/main/resources/request.graphql').text
+    String oldIntrospection = file('src/test/resources/introspection-old.json').text
     doLast {
-        def checker = new ContractChecker()
-        String query = new File('src/main/resources/request.graphql').text
-        String oldIntrospection = new File('src/test/resources/introspection-old.json').text
         String currentIntrospection = getCurrentIntrospection()
-
         def result = checker.checkContract(query, oldIntrospection, currentIntrospection)
         assert  result.result, "Contract broken: $result"
     }
